@@ -1,0 +1,7 @@
+{
+  "name": "Ndori Management",
+  "description": "Premier talent management agency representing elite digital creators and culture-shaping voices, founded by Quinci King.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
