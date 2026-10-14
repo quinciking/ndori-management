@@ -66,7 +66,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .nav a.side:hover, .nav a.side[aria-current="true"] { color: var(--clay); border-bottom-color: var(--clay-soft) }
 .nav .mark { padding: 0 clamp(16px, 3vw, 40px); border: 0 }
 .nav .mark img { width: clamp(112px, 12vw, 168px) }
-@media (max-width: 560px) { .nav-in { grid-template-columns: 1fr } .nav .side { display: none } }
+.nav a.side { cursor: pointer; padding-inline: 6px; -webkit-tap-highlight-color: transparent }
+.nav a.side:focus-visible { outline: 1px solid var(--clay-soft); outline-offset: 4px }
+.nav a.side:active { color: var(--clay) }
+@media (max-width: 560px) {
+  .nav-in { grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; height: auto; padding-block: 10px 0 }
+  .nav .mark { order: -1; grid-column: 1 / -1; padding: 0 0 2px }
+  .nav .mark img { width: 116px }
+  .nav a.side { font-size: 10px; letter-spacing: .14em; padding: 12px 4px 10px }
+}
 
 /* Hero */
 .hero { position: relative; overflow: hidden; min-height: 100svh; display: grid; place-items: center; padding: var(--section) var(--gutter); text-align: center }
@@ -401,8 +409,33 @@ footer img { width: clamp(150px, 16vw, 220px) }
 (() => {
   const links = [...document.querySelectorAll('.nav a.side')];
   const map = { top: 0, about: 0, philosophy: 3, process: 3, talent: 1, press: 2, contact: -1 };
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { const k = map[e.target.id]; links.forEach((l, i) => l.setAttribute('aria-current', i === k ? 'true' : 'false')); } }), { rootMargin: '-45% 0px -50% 0px' });
-  ['top', 'about', 'talent', 'philosophy', 'process', 'press', 'contact'].forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+  const secs = Object.keys(map).map((id) => document.getElementById(id)).filter(Boolean);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  // stacked sections are sticky, so their on-screen position isn't where they live in the page; add up the heights before each one instead
+  const flowTop = (el) => { let t = 0; for (let n = document.body.firstElementChild; n && n !== el; n = n.nextElementSibling) { if (n.tagName !== 'SCRIPT' && getComputedStyle(n).position !== 'fixed') t += n.offsetHeight; } return t; };
+  let tops = [];
+  const measure = () => { tops = secs.map((el) => ({ id: el.id, y: flowTop(el) })); mark(); };
+  const setCurrent = (k) => links.forEach((l, i) => l.setAttribute('aria-current', i === k ? 'true' : 'false'));
+  let ticking = false;
+  function mark() {
+    ticking = false;
+    const y = scrollY + innerHeight * 0.4;
+    let id = tops.length ? tops[0].id : 'top';
+    tops.forEach((t) => { if (t.y <= y) id = t.id; });
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) id = 'contact';
+    setCurrent(map[id]);
+  }
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(mark); } }, { passive: true });
+  addEventListener('resize', measure); addEventListener('load', measure); measure();
+  if ('ResizeObserver' in window) { const ro = new ResizeObserver(measure); secs.forEach((el) => ro.observe(el)); }
+  document.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
+    const id = a.getAttribute('href').slice(1), el = id && document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    if (map[id] !== undefined) setCurrent(map[id]);
+    scrollTo({ top: id === 'top' ? 0 : flowTop(el), behavior: reduce.matches ? 'auto' : 'smooth' });
+    history.replaceState(null, '', '#' + id);
+  }));
 })();
 
 
