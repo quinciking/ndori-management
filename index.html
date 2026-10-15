@@ -68,14 +68,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .nav a.side:hover, .nav a.side[aria-current="true"] { color: var(--clay); border-bottom-color: var(--clay-soft) }
 .nav .mark { padding: 0 clamp(16px, 3vw, 40px); border: 0 }
 .nav .mark img { width: clamp(98px, 10.5vw, 147px) }
-.nav a.side { cursor: pointer; padding-inline: 6px; -webkit-tap-highlight-color: transparent }
+.nav a.side { font-family: var(--display); font-weight: 400; font-size: calc(var(--t-label) * 1.2); cursor: pointer; padding-inline: 6px; -webkit-tap-highlight-color: transparent }
 .nav a.side:focus-visible { outline: 1px solid var(--clay-soft); outline-offset: 4px }
 .nav a.side:active { color: var(--clay) }
 @media (max-width: 560px) {
   .nav-in { grid-template-columns: repeat(4, 1fr); grid-template-rows: auto auto; height: auto; padding-block: 10px 0 }
   .nav .mark { order: -1; grid-column: 1 / -1; padding: 0 0 2px }
   .nav .mark img { width: 101px }
-  .nav a.side { font-size: 10px; letter-spacing: .14em; padding: 12px 4px 10px }
+  .nav a.side { font-size: 12px; letter-spacing: .14em; padding: 12px 4px 10px }
 }
 
 /* Hero */
